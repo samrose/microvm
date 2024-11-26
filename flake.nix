@@ -6,7 +6,7 @@
 
   outputs = { self, nixpkgs, microvm }:
     let
-      system = "aarch64-darwin";
+      system = "x86_64-linux";
     in {
       packages.${system} = {
         default = self.packages.${system}.my-microvm;
