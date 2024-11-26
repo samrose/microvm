@@ -18,9 +18,34 @@
           inherit system;
           modules = [
             microvm.nixosModules.microvm
-            {
+            ({ pkgs, ... }: {
               networking.hostName = "my-microvm";
               users.users.root.password = "";
+
+              # MediaWiki configuration
+              services.mediawiki = {
+                enable = true;
+                name = "Sample_MediaWiki";
+                httpd.virtualHost = {
+                  hostName = "example.com";
+                  adminAddr = "admin@example.com";
+                };
+                passwordFile = pkgs.writeText "password" "cardbotnine";
+                extraConfig = ''
+                  # Disable anonymous editing
+                  $wgGroupPermissions['*']['edit'] = false;
+                '';
+
+                extensions = {
+                  VisualEditor = null;
+
+                  TemplateStyles = pkgs.fetchzip {
+                    url = "https://extdist.wmflabs.org/dist/extensions/TemplateStyles-REL1_40-c639c7a.tar.gz";
+                    hash = "sha256-YBL0Cs4hDSJBdLsv9zFWVkzo7m5osph8QiY=";
+                  };
+                };
+              };
+
               microvm = {
                 volumes = [ {
                   mountPoint = "/var";
@@ -28,11 +53,8 @@
                   size = 256;
                 } ];
                 shares = [ {
-                  # use "virtiofs" for MicroVMs that are started by systemd
                   proto = "9p";
                   tag = "ro-store";
-                  # a host's /nix/store will be picked up so that no
-                  # squashfs/erofs will be built for it.
                   source = "/nix/store";
                   mountPoint = "/nix/.ro-store";
                 } ];
@@ -40,7 +62,7 @@
                 hypervisor = "qemu";
                 socket = "control.socket";
               };
-            }
+            })
           ];
         };
       };
