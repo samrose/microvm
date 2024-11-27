@@ -41,6 +41,12 @@
               services.mediawiki = {
                 enable = true;
                 name = "Sample_MediaWiki";
+                database = {
+                  type = "postgres";
+                  createLocally = true;
+                  name = "mediawiki";
+                  user = "mediawiki";
+                };
                 httpd.virtualHost = {
                   hostName = "_";
                   serverAliases = [ "localhost" "127.0.0.1" "10.0.2.15" ];
